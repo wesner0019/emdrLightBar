@@ -29,14 +29,20 @@ int8_t trailingLEDs = 2;
 int8_t head = 1, tail = 1;
 void getSpeedSetting();
 uint8_t mapSpeed = 0;
-uint8_t maxSpeed = 200/24; //smallest delay 
-uint8_t minSpeed = 4000/24; //largest delay
+uint8_t maxSpeed = 200/12; //smallest delay 
+uint8_t minSpeed = 4000/20; //largest delay
+uint8_t tapperIntensity = 255; //largest delay
 
 void setup() {
   strip.begin(); 
   strip.show();  
   #define NUMPIXELS 24 // Number of LEDs in strip
-  pinMode(A1, INPUT);
+  pinMode(A1, INPUT); //Pot for Light Bar speed
+  pinMode(A0, INPUT); //Pot for Tapper Intensity
+  pinMode(D0, OUTPUT); //Motor 1 Control
+  pinMode(D1, OUTPUT); //Motor 2 Control
+  digitalWrite(D0, LOW);
+  digitalWrite(D1, LOW);
   Serial.begin(9600);
   // for (int8_t i = NUMPIXELS; i <= 30; i++) { //turn off all extra on strip, can take out when strip is cut
   //   strip.setPixelColor(i, 0,0,0);
@@ -65,6 +71,8 @@ void setup() {
 void loop() {
   head = 0;
   tail = trailingLEDs * -1;
+  analogWrite(D0, tapperIntensity);
+  digitalWrite(D1, LOW);
 
   //strip.setBrightness(254);
   // Serial.println("start up");
@@ -87,6 +95,8 @@ void loop() {
 
   head = NUMPIXELS-1;
   tail = head + trailingLEDs;
+  digitalWrite(D0, LOW);
+  analogWrite(D1, tapperIntensity);
 
   //strip.setBrightness(254);
   // Serial.println("start down");
@@ -114,7 +124,9 @@ void getSpeedSetting() {
 
   if (millis() - prevGetSpeedMillis > 1000) {
     uint16_t voltageValue = analogRead(A1); //Voltage divider reading
+    uint16_t tapperValue = analogRead(A0); //Voltage divider reading
     mapSpeed = map(voltageValue, 0 ,4095, maxSpeed, minSpeed);
+    tapperIntensity = map(tapperValue, 0 ,4095, 255, 0);
     prevGetSpeedMillis = millis();
   }
 }
