@@ -25,9 +25,11 @@
 // Hardware SPI is a little faster, but must be wired to specific pins
 // (Core/Photon/P1/Electron = pin A5 for data, A3 for clock)
 Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS);
+
+void getSpeedSetting();
+
 int8_t trailingLEDs = 2;
 int8_t head = 1, tail = 1;
-void getSpeedSetting();
 uint8_t mapSpeed = 0;
 uint8_t maxSpeed = 200/12; //smallest delay 
 uint8_t minSpeed = 4000/20; //largest delay
@@ -122,7 +124,7 @@ void loop() {
 void getSpeedSetting() {
   static uint32_t prevGetSpeedMillis = 0;
 
-  if (millis() - prevGetSpeedMillis > 1000) {
+  if (millis() - prevGetSpeedMillis > 500) {
     uint16_t voltageValue = analogRead(A1); //Voltage divider reading
     uint16_t tapperValue = analogRead(A0); //Voltage divider reading
     mapSpeed = map(voltageValue, 0 ,4095, maxSpeed, minSpeed);
